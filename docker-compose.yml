@@ -1,0 +1,138 @@
+version: '3.8'
+
+services:
+  postgres-users:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: users
+    ports:
+      - "5432:5432"
+    volumes:
+      - users-data:/var/lib/postgresql/data
+
+  postgres-restaurants:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: restaurants
+    ports:
+      - "5433:5432"
+    volumes:
+      - restaurants-data:/var/lib/postgresql/data
+
+  postgres-reservations:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: reservations
+    ports:
+      - "5434:5432"
+    volumes:
+      - reservations-data:/var/lib/postgresql/data
+
+  postgres-notifications:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: notifications
+    ports:
+      - "5435:5432"
+    volumes:
+      - notifications-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  users-service:
+    build:
+      context: ./users-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres-users
+      - rabbitmq
+    entrypoint: ["/wait-for-it.sh", "rabbitmq:5672", "--", "/users-service"]
+    environment:
+      - DB_HOST=postgres-users
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=secret
+      - DB_NAME=users
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    volumes:
+      - ./wait-for-it.sh:/wait-for-it.sh
+
+  restaurants-service:
+    build:
+      context: ./restaurants-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres-restaurants
+    environment:
+      - DB_HOST=postgres-restaurants
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=secret
+      - DB_NAME=restaurants
+
+  reservations-service:
+    build:
+      context: ./reservations-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres-reservations
+      - users-service
+      - restaurants-service
+      - rabbitmq
+    entrypoint: ["/wait-for-it.sh", "rabbitmq:5672", "--", "/reservations-service"]
+    environment:
+      - DB_HOST=postgres-reservations
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=secret
+      - DB_NAME=reservations
+      - USERS_SERVICE_HOST=users-service
+      - USERS_SERVICE_PORT=8081
+      - RESTAURANTS_SERVICE_HOST=restaurants-service
+      - RESTAURANTS_SERVICE_PORT=8082
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    volumes:
+      - ./wait-for-it.sh:/wait-for-it.sh
+
+  notifications-service:
+    build:
+      context: ./notifications-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - postgres-notifications
+      - rabbitmq
+    entrypoint: ["/wait-for-it.sh", "rabbitmq:5672", "--", "/notifications-service"]
+    environment:
+      - DB_HOST=postgres-notifications
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=secret
+      - DB_NAME=notifications
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    volumes:
+      - ./wait-for-it.sh:/wait-for-it.sh
+
+volumes:
+  users-data:
+  restaurants-data:
+  reservations-data:
+  notifications-data:
