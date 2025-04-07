@@ -1,18 +1,18 @@
 # Restaurants Reservations
 
-Este é um projeto de gerenciamento de reservas de restaurantes, desenvolvido com uma arquitetura de microsserviços utilizando **Clean Architecture** e **RabbitMQ** para comunicação assíncrona entre os serviços.
+Este é um projeto de estudo para gerenciamento de reservas de restaurantes, desenvolvido com uma arquitetura de microsserviços utilizando **Clean Architecture** e **RabbitMQ** para comunicação assíncrona entre os serviços.
+
+O projeto foi concebido como forma de estudar conceitos de arquitetura e de tecnologia, portanto ainda pode ser atualizado para incrementar funcionalidades e praticar mais conceitos. O mesmo não encontra-se totalmente funcional, nem tem todos os requisitos para o conceito de reservas apresentado. Atualizações neste README e no projeto podem ser feitas a qualquer momento.
 
 ---
 
 ## 🚀 Tecnologias Utilizadas
 
-- **Linguagem**: [Node.js](https://nodejs.org/) (ou substitua pela linguagem usada)
-- **Framework**: [Express.js](https://expressjs.com/) (ou outro framework utilizado)
+- **Linguagem**: [Golang](https://go.dev/)
 - **Mensageria**: [RabbitMQ](https://www.rabbitmq.com/)
-- **Banco de Dados**: [PostgreSQL](https://www.postgresql.org/) (ou outro banco utilizado)
+- **Banco de Dados**: [PostgreSQL](https://www.postgresql.org/)
 - **Arquitetura**: Clean Architecture
 - **Padrões Adotados**:
-  - **DDD (Domain-Driven Design)**
   - **SOLID**
   - **Event-Driven Architecture**
   - **RESTful APIs**
